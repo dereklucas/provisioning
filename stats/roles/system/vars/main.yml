@@ -1,0 +1,6 @@
+interactive_users:
+  - kevin
+
+system_packages:
+  - build-essential
+  - libnss-mdns

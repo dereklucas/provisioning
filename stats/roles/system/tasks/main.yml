@@ -1,0 +1,20 @@
+- name: set locale
+  shell: update-locale LANG=en_US.UTF-8
+
+- name: install system packages
+  apt: pkg={{item}} state=latest install_recommends=no update-cache=yes
+  with_items: system_packages
+
+- name: create interactive users
+  user: name={{item}} groups=admin shell=/bin/bash
+  with_items: interactive_users
+
+- name: give interactive users password-less sudo
+  template: src=sudoers.d/template dest=/etc/sudoers.d/{{item}}
+    owner=root group=root mode=0440
+  with_items: interactive_users
+
+- name: authorize SSH keys for interactive users
+  authorized_key: user="{{item}}"
+    key="{{ lookup('file', 'public_keys/' + item) }}"
+  with_items: interactive_users

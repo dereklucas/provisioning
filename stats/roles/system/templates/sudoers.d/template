@@ -1,0 +1,2 @@
+# {{ item }} has passwordless sudo functionality.
+{{ item }} ALL=(ALL) NOPASSWD:ALL

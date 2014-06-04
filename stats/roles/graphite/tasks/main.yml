@@ -1,0 +1,89 @@
+- name: install system packages for Graphite
+  apt: pkg={{item}} state=installed update-cache=yes
+  with_items:
+    - nodejs
+    - nodejs-legacy
+    - git
+    - python-dev
+    - python-pip
+    - sqlite3
+    - libcairo2
+    - libcairo2-dev
+    - python-cairo
+    - pkg-config
+
+- name: pip install django
+  pip: name=django version=1.5
+
+- name: pip install django-tagging
+  pip: name=django-tagging
+
+- name: pip install python-memcached
+  pip: name=python-memcached
+
+- name: pip install twisted
+  pip: name=twisted version=13.1.0
+
+- name: pip install whisper
+  pip: name=whisper version=0.9.12
+
+- name: pip install carbon
+  pip: name=carbon version=0.9.12
+
+- name: pip install graphite-web
+  pip: name=graphite-web version=0.9.12
+
+- name: pip install gunicorn
+  pip: name=gunicorn
+
+- name: copy carbon config file
+  template: src=carbon.conf dest=/opt/graphite/conf/carbon.conf
+
+- name: copy storage schema config file
+  template: src=storage-schemas.conf
+    dest=/opt/graphite/conf/storage-schemas.conf
+
+- name: copy webapp local_settings config file
+  template: src=local_settings.py
+    dest=/opt/graphite/webapp/graphite/local_settings.py
+
+- name: copy webapp wsgi file
+  template: src=wsgi.py dest=/opt/graphite/webapp/graphite/wsgi.py
+
+- name: initialize graphite database
+  shell: chdir=/opt/graphite/webapp/graphite python manage.py syncdb --noinput 
+
+- name: install nginx graphite site
+  template: src=nginx/sites-available/graphite
+    dest=/etc/nginx/sites-available/graphite
+
+- name: enable nginx graphite site
+  file: src=/etc/nginx/sites-available/graphite
+    path=/etc/nginx/sites-enabled/graphite state=link
+
+- name: restart nginx
+  service: name=nginx state=restarted
+
+- name: install statsd from git
+  git: repo=git://github.com/etsy/statsd.git dest=/opt/statsd
+
+- name: copy stats config file
+  template: src=localConfig.js dest=/opt/statsd/localConfig.js
+
+- name: copy upstart file for carbon cache
+  template: src=upstart/carbon-cache.conf dest=/etc/init/carbon-cache.conf
+
+- name: copy upstart file for graphite web
+  template: src=upstart/graphite-web.conf dest=/etc/init/graphite-web.conf
+
+- name: copy upstart file for statsd
+  template: src=upstart/statsd.conf dest=/etc/init/statsd.conf
+
+- name: start carbon cache
+  service: name=carbon-cache state=started
+
+- name: start graphite-web
+  service: name=graphite-web state=started
+
+- name: start statsd
+  service: name=statsd state=started
