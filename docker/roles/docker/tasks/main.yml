@@ -1,0 +1,9 @@
+- name: install docker
+  apt: pkg=docker.io state=latest install_recommends=no update-cache=yes
+
+- name: link docker command to default name
+  file: path=/usr/local/bin/docker src=/usr/bin/docker.io state=link
+
+- name: update bash completion for default command name
+  lineinfile: dest=/etc/bash_completion.d/docker.io insertafter=EOF
+    line="complete -F _docker docker"
