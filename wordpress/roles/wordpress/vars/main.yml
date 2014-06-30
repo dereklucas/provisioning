@@ -1,0 +1,9 @@
+lemp_packages:
+  - mysql-server
+  - nginx
+  - php5-gd
+  - php5-fpm
+  - php5-mysql
+  - python-mysqldb
+
+db_password: "{{ lookup('env', 'DB_PASSWORD') }}"

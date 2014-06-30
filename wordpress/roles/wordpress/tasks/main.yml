@@ -1,0 +1,45 @@
+- name: install LEMP packages
+  apt: pkg={{item}} state=latest install_recommends=no update-cache=yes
+  with_items: lemp_packages
+
+- name: copy php.ini
+  template: src=php/php.ini dest=/etc/php5/fpm/php.ini
+
+- name: restart PHP
+  service: name=php5-fpm state=restarted
+
+- name: remove default nginx site
+  file: dest=/etc/nginx/sites-enabled/default state=absent
+
+- name: install nginx blog site
+  template: src=nginx/sites-available/blog
+    dest=/etc/nginx/sites-available/blog
+
+- name: enable nginx blog site
+  file: src=/etc/nginx/sites-available/blog
+    path=/etc/nginx/sites-enabled/blog state=link
+
+- name: restart nginx
+  service: name=nginx state=restarted
+
+- name: create MySQL database
+  mysql_db: name=wordpress
+
+- name: create MySQL user
+  mysql_user: name=wp password={{ db_password }} priv=wordpress.*:ALL
+
+- name: create document root
+  file: dest=/var/www state=directory
+
+- name: download wordpress application source
+  get_url: dest=/tmp/wordpress.tar.gz url=http://wordpress.org/latest.tar.gz
+
+- name: unpack wordpress applicaton to document root
+  command: tar zxf /tmp/wordpress.tar.gz
+    chdir=/var/www creates=/var/www/wordpress
+
+- name: fix permissions for wordpress application files
+  file: dest=/var/www/wordpress owner=www-data group=www-data recurse=yes
+
+- name: copy wordpress config file
+  template: src=wordpress/wp-config.php dest=/var/www/wordpress/wp-config.php
