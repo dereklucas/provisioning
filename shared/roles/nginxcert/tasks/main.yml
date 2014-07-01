@@ -1,0 +1,15 @@
+- name: create certs directory
+  file: dest=/etc/nginx/certs state=directory owner=www-data
+
+- name: copy server certificate
+  copy: src={{ certificate_path }} dest=/etc/nginx/certs/server.crt
+
+- name: copy server key
+  copy: src={{ certificate_key_path }} dest=/etc/nginx/certs/server.key
+
+- name: install nginx SSL configuration
+  template: src=nginx/clientsidecerts.conf
+    dest=/etc/nginx/conf.d/clientsidecerts.conf
+
+- name: restart nginx
+  service: name=nginx state=restarted
