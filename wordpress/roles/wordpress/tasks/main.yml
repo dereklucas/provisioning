@@ -8,9 +8,6 @@
 - name: restart PHP
   service: name=php5-fpm state=restarted
 
-- name: remove default nginx site
-  file: dest=/etc/nginx/sites-enabled/default state=absent
-
 - name: install nginx blog site
   template: src=nginx/sites-available/blog
     dest=/etc/nginx/sites-available/blog
