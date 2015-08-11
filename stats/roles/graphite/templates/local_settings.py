@@ -93,3 +93,5 @@
 #
 # You *should* use 127.0.0.1 here.
 #CARBONLINK_HOSTS = ["127.0.0.1:7002:a", "127.0.0.1:7102:b", "127.0.0.1:7202:c"]
+
+SECRET_KEY = "6ri&z&kj!ggk9x$1kyycfb2qq%z)w^^og944pj=42p-49=*g1m"

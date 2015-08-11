@@ -16,7 +16,7 @@
   pip: name=django version=1.5
 
 - name: pip install django-tagging
-  pip: name=django-tagging
+  pip: name=django-tagging version=0.3.6
 
 - name: pip install python-memcached
   pip: name=python-memcached
@@ -51,7 +51,7 @@
   template: src=wsgi.py dest=/opt/graphite/webapp/graphite/wsgi.py
 
 - name: initialize graphite database
-  shell: chdir=/opt/graphite/webapp/graphite python manage.py syncdb --noinput 
+  shell: chdir=/opt/graphite/webapp/graphite python manage.py syncdb --noinput
 
 - name: install nginx graphite site
   template: src=nginx/sites-available/graphite
@@ -63,6 +63,9 @@
 
 - name: restart nginx
   service: name=nginx state=restarted
+
+- name: ssh-keyscan the git server #https://github.com/ansible/ansible/issues/7474
+  shell: ssh-keyscan -H -t dsa github.com >> ~/.ssh/known_hosts 2>&1
 
 - name: install statsd from git
   git: repo=git://github.com/etsy/statsd.git dest=/opt/statsd
